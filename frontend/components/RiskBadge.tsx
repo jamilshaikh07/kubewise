@@ -7,9 +7,9 @@ interface Props {
 }
 
 const styles: Record<string, string> = {
-  high:   "bg-red-50 text-red-700 ring-1 ring-red-200",
-  medium: "bg-amber-50 text-amber-700 ring-1 ring-amber-200",
-  low:    "bg-green-50 text-green-700 ring-1 ring-green-200",
+  high:   "bg-red-50 text-red-700 ring-1 ring-red-200 dark:bg-red-900/30 dark:text-red-400 dark:ring-red-800",
+  medium: "bg-amber-50 text-amber-700 ring-1 ring-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:ring-amber-700",
+  low:    "bg-green-50 text-green-700 ring-1 ring-green-200 dark:bg-green-900/30 dark:text-green-400 dark:ring-green-800",
 };
 
 export function RiskBadge({ level, label, size = "sm" }: Props) {
@@ -29,9 +29,9 @@ export function RiskBadge({ level, label, size = "sm" }: Props) {
 
 export function ConfidenceBadge({ level, size = "sm" }: { level: string; size?: "sm" | "md" }) {
   const styles: Record<string, string> = {
-    high:   "bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200",
-    medium: "bg-sky-50 text-sky-700 ring-1 ring-sky-200",
-    low:    "bg-slate-100 text-slate-600 ring-1 ring-slate-200",
+    high:   "bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300 dark:ring-indigo-800",
+    medium: "bg-sky-50 text-sky-700 ring-1 ring-sky-200 dark:bg-sky-900/30 dark:text-sky-300 dark:ring-sky-800",
+    low:    "bg-slate-100 text-slate-600 ring-1 ring-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:ring-slate-600",
   };
   const base = styles[level] ?? styles.low;
   return (
@@ -49,12 +49,12 @@ export function ConfidenceBadge({ level, size = "sm" }: { level: string; size?: 
 
 export function FlagBadge({ flag }: { flag: string }) {
   const map: Record<string, string> = {
-    over_provisioned_cpu:    "bg-orange-50 text-orange-700 ring-1 ring-orange-200",
-    over_provisioned_memory: "bg-orange-50 text-orange-700 ring-1 ring-orange-200",
-    missing_requests:        "bg-red-50 text-red-700 ring-1 ring-red-200",
-    missing_limits:          "bg-red-50 text-red-700 ring-1 ring-red-200",
-    idle_workload:           "bg-slate-100 text-slate-500 ring-1 ring-slate-200",
-    high_risk:               "bg-rose-50 text-rose-700 ring-1 ring-rose-200",
+    over_provisioned_cpu:    "bg-orange-50 text-orange-700 ring-1 ring-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:ring-orange-800",
+    over_provisioned_memory: "bg-orange-50 text-orange-700 ring-1 ring-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:ring-orange-800",
+    missing_requests:        "bg-red-50 text-red-700 ring-1 ring-red-200 dark:bg-red-900/30 dark:text-red-400 dark:ring-red-800",
+    missing_limits:          "bg-red-50 text-red-700 ring-1 ring-red-200 dark:bg-red-900/30 dark:text-red-400 dark:ring-red-800",
+    idle_workload:           "bg-slate-100 text-slate-500 ring-1 ring-slate-200 dark:bg-slate-700 dark:text-slate-400 dark:ring-slate-600",
+    high_risk:               "bg-rose-50 text-rose-700 ring-1 ring-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:ring-rose-800",
   };
   const labels: Record<string, string> = {
     over_provisioned_cpu:    "Over-prov CPU",

@@ -38,7 +38,7 @@ export function WorkloadTable({ workloads, onSelect }: Props) {
   function Th({ label, k }: { label: string; k: SortKey }) {
     return (
       <th
-        className="px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-slate-500 cursor-pointer select-none hover:text-slate-700 whitespace-nowrap"
+        className="px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400 cursor-pointer select-none hover:text-slate-700 dark:hover:text-slate-200 whitespace-nowrap"
         onClick={() => toggleSort(k)}
       >
         <span className="inline-flex items-center gap-1">
@@ -51,7 +51,7 @@ export function WorkloadTable({ workloads, onSelect }: Props) {
 
   if (!sorted.length) {
     return (
-      <div className="flex h-32 items-center justify-center text-sm text-slate-400">
+      <div className="flex h-32 items-center justify-center text-sm text-slate-400 dark:text-slate-500">
         No workloads match the current filters.
       </div>
     );
@@ -60,46 +60,46 @@ export function WorkloadTable({ workloads, onSelect }: Props) {
   return (
     <div className="overflow-x-auto scrollbar-thin">
       <table className="w-full text-sm">
-        <thead className="border-b border-slate-200 bg-slate-50">
+        <thead className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60">
           <tr>
             <Th label="Workload" k="name" />
             <Th label="Namespace" k="namespace" />
-            <th className="px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-slate-500 whitespace-nowrap">Kind</th>
-            <th className="px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-slate-500 whitespace-nowrap">Rep.</th>
-            <th className="px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-slate-500 whitespace-nowrap">Flag</th>
-            <th className="px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-slate-500 whitespace-nowrap">Risk</th>
-            <th className="px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-slate-500 whitespace-nowrap">Confidence</th>
+            <th className="px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">Kind</th>
+            <th className="px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">Rep.</th>
+            <th className="px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">Flag</th>
+            <th className="px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">Risk</th>
+            <th className="px-3 py-2 text-left text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">Confidence</th>
             <Th label="Est. Cost/mo" k="cost" />
             <Th label="Savings/mo" k="savings" />
             <Th label="Recs" k="recs" />
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100">
+        <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
           {sorted.map((wl) => (
             <tr
               key={wl.id}
               onClick={() => onSelect(wl.id)}
-              className="cursor-pointer hover:bg-slate-50 transition-colors"
+              className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
             >
-              <td className="px-3 py-2 font-medium text-slate-800 whitespace-nowrap">
+              <td className="px-3 py-2 font-medium text-slate-800 dark:text-slate-200 whitespace-nowrap">
                 <span className="hover:text-indigo-600 transition-colors">{wl.name}</span>
                 {wl.is_high_risk && (
                   <span className="ml-1.5 text-[9px] font-semibold uppercase text-rose-600">⚠</span>
                 )}
               </td>
-              <td className="px-3 py-2 text-slate-500 whitespace-nowrap text-xs">{wl.namespace}</td>
-              <td className="px-3 py-2 text-slate-500 whitespace-nowrap text-xs font-mono">{wl.kind}</td>
-              <td className="px-3 py-2 text-slate-500 text-center text-xs">{wl.replicas}</td>
+              <td className="px-3 py-2 text-slate-500 dark:text-slate-400 whitespace-nowrap text-xs">{wl.namespace}</td>
+              <td className="px-3 py-2 text-slate-500 dark:text-slate-400 whitespace-nowrap text-xs font-mono">{wl.kind}</td>
+              <td className="px-3 py-2 text-slate-500 dark:text-slate-400 text-center text-xs">{wl.replicas}</td>
               <td className="px-3 py-2">
-                {wl.top_flag ? <FlagBadge flag={wl.top_flag} /> : <span className="text-slate-300 text-xs">—</span>}
+                {wl.top_flag ? <FlagBadge flag={wl.top_flag} /> : <span className="text-slate-300 dark:text-slate-600 text-xs">—</span>}
               </td>
               <td className="px-3 py-2">
-                {wl.top_risk ? <RiskBadge level={wl.top_risk} /> : <span className="text-slate-300 text-xs">—</span>}
+                {wl.top_risk ? <RiskBadge level={wl.top_risk} /> : <span className="text-slate-300 dark:text-slate-600 text-xs">—</span>}
               </td>
               <td className="px-3 py-2">
-                {wl.top_confidence ? <ConfidenceBadge level={wl.top_confidence} /> : <span className="text-slate-300 text-xs">—</span>}
+                {wl.top_confidence ? <ConfidenceBadge level={wl.top_confidence} /> : <span className="text-slate-300 dark:text-slate-600 text-xs">—</span>}
               </td>
-              <td className="px-3 py-2 text-slate-700 tabular-nums text-xs whitespace-nowrap">
+              <td className="px-3 py-2 text-slate-700 dark:text-slate-300 tabular-nums text-xs whitespace-nowrap">
                 {fmt$$(wl.estimated_monthly_cost_usd, 2)}
                 <span className="text-slate-400 text-[10px]"> est.</span>
               </td>
@@ -107,16 +107,16 @@ export function WorkloadTable({ workloads, onSelect }: Props) {
                 {wl.potential_savings_usd > 0 ? (
                   <span className="text-green-600 font-medium">{fmt$$(wl.potential_savings_usd, 2)}</span>
                 ) : (
-                  <span className="text-slate-300">—</span>
+                  <span className="text-slate-300 dark:text-slate-600">—</span>
                 )}
               </td>
               <td className="px-3 py-2 text-center">
                 {wl.recommendation_count > 0 ? (
-                  <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-indigo-100 text-indigo-700 text-[11px] font-semibold">
+                  <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 text-[11px] font-semibold">
                     {wl.recommendation_count}
                   </span>
                 ) : (
-                  <span className="text-slate-300 text-xs">0</span>
+                  <span className="text-slate-300 dark:text-slate-600 text-xs">0</span>
                 )}
               </td>
             </tr>

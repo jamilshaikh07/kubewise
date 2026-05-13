@@ -30,26 +30,26 @@ export function MetricCard({
   return (
     <div
       className={cn(
-        "rounded-lg bg-white px-5 py-4 shadow-sm border border-slate-200",
+        "rounded-lg bg-white dark:bg-slate-800 px-5 py-4 shadow-sm border border-slate-200 dark:border-slate-700",
         highlightBorder[highlight],
       )}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
+          <p className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
             {title}
             {estimated && (
               <span className="ml-1 text-[9px] font-normal normal-case text-slate-400">(est.)</span>
             )}
           </p>
-          <p className="mt-1 text-2xl font-semibold tabular-nums text-slate-900 leading-none">
+          <p className="mt-1 text-2xl font-semibold tabular-nums text-slate-900 dark:text-slate-100 leading-none">
             {value}
           </p>
-          {sub && <p className="mt-1 text-xs text-slate-400">{sub}</p>}
+          {sub && <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">{sub}</p>}
         </div>
         {Icon && (
-          <div className="shrink-0 rounded-md bg-slate-100 p-2">
-            <Icon className="h-4 w-4 text-slate-500" />
+          <div className="shrink-0 rounded-md bg-slate-100 dark:bg-slate-700 p-2">
+            <Icon className="h-4 w-4 text-slate-500 dark:text-slate-400" />
           </div>
         )}
       </div>

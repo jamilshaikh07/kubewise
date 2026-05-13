@@ -1,0 +1,121 @@
+name: Build & Release KubeWise
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  OWNER: jamilshaikh07
+  GITOPS_REPO: jamilshaikh07/talos-proxmox-gitops
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set build metadata
+        id: meta
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          echo "tag=sha-${SHORT_SHA}" >> $GITHUB_OUTPUT
+          echo "chart_version=0.1.${{ github.run_number }}" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & push kubewise-api
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ghcr.io/${{ env.OWNER }}/kubewise-api:${{ steps.meta.outputs.tag }}
+            ghcr.io/${{ env.OWNER }}/kubewise-api:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build & push kubewise-dashboard
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          push: true
+          tags: |
+            ghcr.io/${{ env.OWNER }}/kubewise-dashboard:${{ steps.meta.outputs.tag }}
+            ghcr.io/${{ env.OWNER }}/kubewise-dashboard:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build & push kubewise-agent
+        uses: docker/build-push-action@v6
+        with:
+          context: ./agent
+          push: true
+          tags: |
+            ghcr.io/${{ env.OWNER }}/kubewise-agent:${{ steps.meta.outputs.tag }}
+            ghcr.io/${{ env.OWNER }}/kubewise-agent:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+
+      - name: Install yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq \
+            https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Stamp chart with build metadata
+        run: |
+          TAG=${{ steps.meta.outputs.tag }}
+          CHART_VERSION=${{ steps.meta.outputs.chart_version }}
+          yq e '.version = "'${CHART_VERSION}'"' -i charts/kubewise/Chart.yaml
+          yq e '.appVersion = "'${TAG}'"' -i charts/kubewise/Chart.yaml
+          yq e '.api.image.tag = "'${TAG}'"' -i charts/kubewise/values.yaml
+          yq e '.dashboard.image.tag = "'${TAG}'"' -i charts/kubewise/values.yaml
+          yq e '.agent.image.tag = "'${TAG}'"' -i charts/kubewise/values.yaml
+
+      - name: Package and push Helm chart to GHCR OCI
+        run: |
+          helm package charts/kubewise --version ${{ steps.meta.outputs.chart_version }}
+          helm push kubewise-${{ steps.meta.outputs.chart_version }}.tgz \
+            oci://ghcr.io/${{ env.OWNER }}/charts
+
+      - name: Checkout gitops repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.GITOPS_REPO }}
+          token: ${{ secrets.GH_PAT }}
+          path: gitops-repo
+
+      - name: Bump chart version in gitops repo
+        run: |
+          CHART_VERSION=${{ steps.meta.outputs.chart_version }}
+          yq e '.spec.chart.spec.version = "'${CHART_VERSION}'"' \
+            -i gitops-repo/gitops/flux/apps/kubewise.yaml
+
+      - name: Commit and push gitops update
+        run: |
+          cd gitops-repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add gitops/flux/apps/kubewise.yaml
+          git diff --staged --quiet \
+            && echo "No changes to commit" \
+            || git commit -m "chore: bump kubewise to ${{ steps.meta.outputs.chart_version }} (${{ steps.meta.outputs.tag }})" \
+            && git push

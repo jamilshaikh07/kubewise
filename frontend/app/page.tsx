@@ -20,18 +20,19 @@ import { SpendByNamespace } from "@/components/SpendByNamespace";
 import { CpuMemChart } from "@/components/CpuMemChart";
 import { RecommendationPanel } from "@/components/RecommendationPanel";
 import { RiskBadge } from "@/components/RiskBadge";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 function Spinner() {
   return (
     <div className="flex h-64 items-center justify-center">
-      <RefreshCw className="h-6 w-6 animate-spin text-slate-400" />
+      <RefreshCw className="h-6 w-6 animate-spin text-slate-400 dark:text-slate-500" />
     </div>
   );
 }
 
 function ErrorBanner({ msg }: { msg: string }) {
   return (
-    <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+    <div className="rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm text-red-700 dark:text-red-400">
       <strong>Error:</strong> {msg}
     </div>
   );
@@ -134,20 +135,20 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
       {selectedRec && (
         <RecommendationPanel rec={selectedRec} onClose={() => setSelectedRec(null)} />
       )}
 
       {/* Top bar */}
-      <header className="border-b border-slate-200 bg-white px-6 py-3 flex items-center justify-between">
+      <header className="border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5">
             <Zap className="h-5 w-5 text-indigo-600" />
-            <span className="font-bold text-slate-800 text-base tracking-tight">KubeWise</span>
+            <span className="font-bold text-slate-800 dark:text-slate-100 text-base tracking-tight">KubeWise</span>
           </div>
           {cluster && (
-            <span className="rounded bg-slate-100 px-2 py-0.5 text-xs font-mono text-slate-600">
+            <span className="rounded bg-slate-100 dark:bg-slate-700 px-2 py-0.5 text-xs font-mono text-slate-600 dark:text-slate-300">
               {cluster.name}
             </span>
           )}
@@ -162,11 +163,12 @@ export default function Dashboard() {
           <button
             onClick={load}
             disabled={loading}
-            className="flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-50"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
             Refresh
           </button>
+          <ThemeToggle />
           <span className="rounded bg-amber-50 border border-amber-200 px-2 py-0.5 text-[10px] font-semibold text-amber-700 uppercase tracking-wide">
             Advisory Only
           </span>
@@ -222,15 +224,15 @@ export default function Dashboard() {
 
             {/* Risk breakdown */}
             {recs.length > 0 && (
-              <div className="rounded-lg bg-white border border-slate-200 shadow-sm px-5 py-3">
-                <p className="text-[11px] uppercase tracking-wider font-medium text-slate-400 mb-2">Risk breakdown</p>
+              <div className="rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm px-5 py-3">
+                <p className="text-[11px] uppercase tracking-wider font-medium text-slate-400 dark:text-slate-500 mb-2">Risk breakdown</p>
                 <div className="flex items-center gap-4 flex-wrap">
                   <div className="flex items-center gap-2">
                     <RiskBadge level="high" label={`${riskCounts.high} High`} size="md" />
                     <RiskBadge level="medium" label={`${riskCounts.medium} Medium`} size="md" />
                     <RiskBadge level="low" label={`${riskCounts.low} Low`} size="md" />
                   </div>
-                  <div className="flex-1 min-w-48 h-3 rounded-full overflow-hidden bg-slate-100 flex">
+                  <div className="flex-1 min-w-48 h-3 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-700 flex">
                     {riskCounts.high > 0 && (
                       <div
                         className="bg-red-400 h-full"
@@ -256,9 +258,9 @@ export default function Dashboard() {
 
             {/* Charts row */}
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-              <div className="rounded-lg bg-white border border-slate-200 shadow-sm p-4">
-                <p className="text-xs font-semibold text-slate-700 mb-1">Spend & Savings by Namespace</p>
-                <p className="text-[11px] text-slate-400 mb-3">Estimated monthly cost vs potential savings</p>
+              <div className="rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm p-4">
+                <p className="text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">Spend & Savings by Namespace</p>
+                <p className="text-[11px] text-slate-400 dark:text-slate-500 mb-3">Estimated monthly cost vs potential savings</p>
                 <SpendByNamespace
                   data={namespaces.map((ns) => ({
                     namespace: ns.name,
@@ -267,14 +269,14 @@ export default function Dashboard() {
                   }))}
                 />
               </div>
-              <div className="rounded-lg bg-white border border-slate-200 shadow-sm p-4">
-                <p className="text-xs font-semibold text-slate-700 mb-1">CPU: Request vs Recommended</p>
-                <p className="text-[11px] text-slate-400 mb-3">Millicores — top over-provisioned workloads</p>
+              <div className="rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm p-4">
+                <p className="text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">CPU: Request vs Recommended</p>
+                <p className="text-[11px] text-slate-400 dark:text-slate-500 mb-3">Millicores — top over-provisioned workloads</p>
                 <CpuMemChart data={cpuChartData} unit="CPU (m)" />
               </div>
-              <div className="rounded-lg bg-white border border-slate-200 shadow-sm p-4">
-                <p className="text-xs font-semibold text-slate-700 mb-1">Memory: Request vs Recommended</p>
-                <p className="text-[11px] text-slate-400 mb-3">MiB — top over-provisioned workloads</p>
+              <div className="rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm p-4">
+                <p className="text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">Memory: Request vs Recommended</p>
+                <p className="text-[11px] text-slate-400 dark:text-slate-500 mb-3">MiB — top over-provisioned workloads</p>
                 <CpuMemChart
                   data={memChartData}
                   unit="Memory (MiB)"
@@ -285,11 +287,11 @@ export default function Dashboard() {
             </div>
 
             {/* Filters + table */}
-            <div className="rounded-lg bg-white border border-slate-200 shadow-sm">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-4 py-3">
+            <div className="rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 px-4 py-3">
                 <div>
-                  <p className="text-sm font-semibold text-slate-800">Workloads</p>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">Workloads</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500">
                     {filteredWorkloads.length} of {workloads.length} shown — click a row to view recommendations
                   </p>
                 </div>
@@ -308,7 +310,7 @@ export default function Dashboard() {
               <WorkloadTable workloads={filteredWorkloads} onSelect={handleWorkloadSelect} />
               {filteredWorkloads.length === 0 && !loading && (
                 <div className="flex flex-col items-center justify-center gap-2 py-12 text-slate-400">
-                  <CheckCircle2 className="h-8 w-8 text-slate-200" />
+                  <CheckCircle2 className="h-8 w-8 text-slate-200 dark:text-slate-700" />
                   <p className="text-sm">No workloads match the current filters.</p>
                 </div>
               )}
@@ -316,24 +318,24 @@ export default function Dashboard() {
 
             {/* Top savings opportunities */}
             {filteredRecs.length > 0 && (
-              <div className="rounded-lg bg-white border border-slate-200 shadow-sm">
-                <div className="border-b border-slate-200 px-4 py-3">
-                  <p className="text-sm font-semibold text-slate-800">Top Saving Opportunities</p>
-                  <p className="text-xs text-slate-400">Highest estimated monthly savings — click to view patch</p>
+              <div className="rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
+                <div className="border-b border-slate-200 dark:border-slate-700 px-4 py-3">
+                  <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">Top Saving Opportunities</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500">Highest estimated monthly savings — click to view patch</p>
                 </div>
-                <div className="divide-y divide-slate-100">
+                <div className="divide-y divide-slate-100 dark:divide-slate-700">
                   {[...filteredRecs]
                     .sort((a, b) => b.estimated_monthly_savings_usd - a.estimated_monthly_savings_usd)
                     .slice(0, 8)
                     .map((r) => (
                       <div
                         key={r.id}
-                        className="flex items-center justify-between gap-4 px-4 py-2.5 hover:bg-slate-50 cursor-pointer transition-colors"
+                        className="flex items-center justify-between gap-4 px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-colors"
                         onClick={() => setSelectedRec(r)}
                       >
                         <div className="min-w-0">
-                          <span className="text-sm font-medium text-slate-700 truncate">{r.workload_name}</span>
-                          <span className="ml-2 text-xs text-slate-400">{r.namespace} / {r.container_name}</span>
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{r.workload_name}</span>
+                          <span className="ml-2 text-xs text-slate-400 dark:text-slate-500">{r.namespace} / {r.container_name}</span>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
                           <RiskBadge level={r.risk} />

@@ -15,7 +15,7 @@ interface Props {
 }
 
 const selectCls =
-  "rounded border border-slate-200 bg-white px-2.5 py-1.5 text-xs text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400";
+  "rounded border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400";
 
 export function FilterBar({
   namespaces,
