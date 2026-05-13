@@ -1,0 +1,36 @@
+replicaCount: 1
+
+image:
+  repository: kubewise/agent
+  pullPolicy: IfNotPresent
+  tag: "0.1.0"
+
+agent:
+  backendUrl: "http://kubewise-api:8000"
+  clusterName: "my-cluster"
+  pollIntervalSeconds: 300
+  cloudProvider: ""
+  cloudRegion: ""
+  inCluster: "true"
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+
+serviceAccount:
+  name: kubewise-agent
+
+rbac:
+  create: true
+
+podAnnotations: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

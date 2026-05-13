@@ -1,0 +1,74 @@
+version: "3.9"
+
+# KubeWise — local development stack
+# Service names match the Kubernetes Service names in k8s/
+# so environment variables need no change when moving to k8s.
+
+services:
+
+  # ── Backend API ───────────────────────────────────────────────────────────
+  kubewise-api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: kubewise/api:dev
+    container_name: kubewise-api
+    restart: unless-stopped
+    ports:
+      - "8001:8000"
+    volumes:
+      - kubewise-data:/data
+    environment:
+      DATABASE_URL: sqlite:////data/kubewise.db
+      SEED_DEMO_DATA: "true"
+      CORS_ORIGINS: "*"
+      DEFAULT_NODE_HOURLY_RATE: "0.096"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ── Frontend Dashboard ────────────────────────────────────────────────────
+  kubewise-dashboard:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: "http://localhost:8001"
+    image: kubewise/dashboard:dev
+    container_name: kubewise-dashboard
+    restart: unless-stopped
+    ports:
+      - "3002:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: "http://kubewise-api:8000"
+      PORT: "3000"
+    depends_on:
+      kubewise-api:
+        condition: service_healthy
+
+  # ── Agent (runs locally, reads Talos cluster via kubeconfig) ─────────────
+  kubewise-agent:
+    build:
+      context: ./agent
+      dockerfile: Dockerfile
+    image: kubewise/agent:dev
+    container_name: kubewise-agent
+    restart: unless-stopped
+    environment:
+      BACKEND_URL: "http://kubewise-api:8000"
+      CLUSTER_NAME: "talos-homelab"
+      POLL_INTERVAL_SECONDS: "60"
+      IN_CLUSTER: "false"
+      KUBECONFIG: "/home/kubewise/.kube/config"
+    volumes:
+      - "./agent-kubeconfig.yaml:/home/kubewise/.kube/config:ro"
+    depends_on:
+      kubewise-api:
+        condition: service_healthy
+
+volumes:
+  kubewise-data:
+    driver: local

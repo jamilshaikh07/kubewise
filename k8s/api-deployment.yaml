@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubewise-api
+  namespace: kubewise
+  labels:
+    app: kubewise-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kubewise-api
+  template:
+    metadata:
+      labels:
+        app: kubewise-api
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+      containers:
+        - name: api
+          image: kubewise/api:0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DATABASE_URL
+              value: "sqlite:////data/kubewise.db"
+            - name: SEED_DEMO_DATA
+              value: "true"
+            - name: CORS_ORIGINS
+              value: "http://kubewise-dashboard:3000"
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: kubewise-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubewise-api
+  namespace: kubewise
+spec:
+  selector:
+    app: kubewise-api
+  ports:
+    - port: 8000
+      targetPort: 8000
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kubewise-data
+  namespace: kubewise
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

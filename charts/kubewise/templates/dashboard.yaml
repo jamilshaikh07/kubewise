@@ -1,0 +1,70 @@
+{{- $ns := .Values.global.namespace -}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubewise-dashboard
+  namespace: {{ $ns }}
+  labels:
+    {{- include "kubewise.labels" . | nindent 4 }}
+    app.kubernetes.io/component: dashboard
+    app: kubewise-dashboard
+spec:
+  replicas: {{ .Values.dashboard.replicas }}
+  selector:
+    matchLabels:
+      app: kubewise-dashboard
+  template:
+    metadata:
+      labels:
+        app: kubewise-dashboard
+        app.kubernetes.io/component: dashboard
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+      containers:
+        - name: dashboard
+          image: {{ .Values.dashboard.image.repository }}:{{ .Values.dashboard.image.tag }}
+          imagePullPolicy: {{ .Values.dashboard.image.pullPolicy }}
+          ports:
+            - containerPort: 3000
+              name: http
+          env:
+            - name: NEXT_PUBLIC_API_URL
+              value: {{ .Values.dashboard.env.NEXT_PUBLIC_API_URL | quote }}
+            - name: PORT
+              value: "3000"
+            - name: HOSTNAME
+              value: "0.0.0.0"
+          resources:
+            {{- toYaml .Values.dashboard.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubewise-dashboard
+  namespace: {{ $ns }}
+  labels:
+    {{- include "kubewise.labels" . | nindent 4 }}
+    app.kubernetes.io/component: dashboard
+spec:
+  selector:
+    app: kubewise-dashboard
+  ports:
+    - name: http
+      port: {{ .Values.dashboard.service.port }}
+      targetPort: 3000
+  type: {{ .Values.dashboard.service.type }}

@@ -1,0 +1,87 @@
+## KubeWise Helm Chart — Default Values
+
+## -- Global settings --
+global:
+  namespace: kubewise
+
+## -- API (Backend) --
+api:
+  image:
+    repository: kubewise/api
+    tag: "0.1.0"
+    pullPolicy: IfNotPresent
+  replicas: 1
+  service:
+    type: ClusterIP
+    port: 8000
+  env:
+    SEED_DEMO_DATA: "true"
+    CORS_ORIGINS: "*"
+    DEFAULT_NODE_HOURLY_RATE: "0.096"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  persistence:
+    enabled: true
+    size: 1Gi
+    storageClass: ""   # leave empty to use cluster default
+  healthcheck:
+    path: /health
+    initialDelaySeconds: 10
+    periodSeconds: 20
+
+## -- Dashboard (Frontend) --
+dashboard:
+  image:
+    repository: kubewise/dashboard
+    tag: "0.1.0"
+    pullPolicy: IfNotPresent
+  replicas: 1
+  service:
+    type: ClusterIP
+    port: 3000
+  env:
+    NEXT_PUBLIC_API_URL: "http://kubewise-api:8000"
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 512Mi
+
+## -- Agent --
+## Set enabled: true to deploy the in-cluster collector agent alongside the stack.
+## The agent needs a real cluster to collect from; disable for pure demo mode.
+agent:
+  enabled: false
+  image:
+    repository: kubewise/agent
+    tag: "0.1.0"
+    pullPolicy: IfNotPresent
+  clusterName: "my-cluster"
+  pollIntervalSeconds: 300
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+
+## -- Ingress (optional) --
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  dashboard:
+    host: kubewise.example.com
+    path: /
+  api:
+    host: kubewise-api.example.com
+    path: /
+  tls: []

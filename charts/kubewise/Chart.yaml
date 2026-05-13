@@ -1,0 +1,14 @@
+apiVersion: v2
+name: kubewise
+description: KubeWise — Kubernetes cost and performance optimization platform (advisory-only)
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+keywords:
+  - kubernetes
+  - finops
+  - cost-optimization
+  - right-sizing
+maintainers:
+  - name: kubewise
+home: https://github.com/your-org/kubewise

@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubewise-agent
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: kubewise-agent
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kubewise-agent
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: kubewise-agent
+        app.kubernetes.io/instance: {{ .Release.Name }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+      containers:
+        - name: agent
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: BACKEND_URL
+              value: {{ .Values.agent.backendUrl | quote }}
+            - name: CLUSTER_NAME
+              value: {{ .Values.agent.clusterName | quote }}
+            - name: POLL_INTERVAL_SECONDS
+              value: {{ .Values.agent.pollIntervalSeconds | quote }}
+            - name: IN_CLUSTER
+              value: {{ .Values.agent.inCluster | quote }}
+            {{- if .Values.agent.cloudProvider }}
+            - name: CLOUD_PROVIDER
+              value: {{ .Values.agent.cloudProvider | quote }}
+            {{- end }}
+            {{- if .Values.agent.cloudRegion }}
+            - name: CLOUD_REGION
+              value: {{ .Values.agent.cloudRegion | quote }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

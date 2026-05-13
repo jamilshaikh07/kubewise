@@ -1,0 +1,13 @@
+apiVersion: v2
+name: kubewise-agent
+description: KubeWise read-only Kubernetes collector agent
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+keywords:
+  - kubernetes
+  - cost-optimization
+  - finops
+  - kubewise
+maintainers:
+  - name: KubeWise

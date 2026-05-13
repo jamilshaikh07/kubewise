@@ -1,0 +1,31 @@
+{
+  "default_node_hourly_rate_usd": 0.096,
+  "providers": {
+    "aws": {
+      "t3.medium":    { "hourly_usd": 0.0416, "cpu_cores": 2,  "memory_gib": 4  },
+      "t3.large":     { "hourly_usd": 0.0832, "cpu_cores": 2,  "memory_gib": 8  },
+      "t3.xlarge":    { "hourly_usd": 0.1664, "cpu_cores": 4,  "memory_gib": 16 },
+      "m5.large":     { "hourly_usd": 0.096,  "cpu_cores": 2,  "memory_gib": 8  },
+      "m5.xlarge":    { "hourly_usd": 0.192,  "cpu_cores": 4,  "memory_gib": 16 },
+      "m5.2xlarge":   { "hourly_usd": 0.384,  "cpu_cores": 8,  "memory_gib": 32 },
+      "m5.4xlarge":   { "hourly_usd": 0.768,  "cpu_cores": 16, "memory_gib": 64 },
+      "c5.large":     { "hourly_usd": 0.085,  "cpu_cores": 2,  "memory_gib": 4  },
+      "c5.xlarge":    { "hourly_usd": 0.170,  "cpu_cores": 4,  "memory_gib": 8  },
+      "r5.large":     { "hourly_usd": 0.126,  "cpu_cores": 2,  "memory_gib": 16 },
+      "r5.xlarge":    { "hourly_usd": 0.252,  "cpu_cores": 4,  "memory_gib": 32 }
+    },
+    "gcp": {
+      "e2-medium":    { "hourly_usd": 0.0335, "cpu_cores": 2,  "memory_gib": 4  },
+      "e2-standard-2":{ "hourly_usd": 0.0670, "cpu_cores": 2,  "memory_gib": 8  },
+      "e2-standard-4":{ "hourly_usd": 0.1340, "cpu_cores": 4,  "memory_gib": 16 },
+      "n2-standard-2":{ "hourly_usd": 0.0971, "cpu_cores": 2,  "memory_gib": 8  },
+      "n2-standard-4":{ "hourly_usd": 0.1942, "cpu_cores": 4,  "memory_gib": 16 }
+    },
+    "azure": {
+      "Standard_D2s_v3": { "hourly_usd": 0.096, "cpu_cores": 2, "memory_gib": 8 },
+      "Standard_D4s_v3": { "hourly_usd": 0.192, "cpu_cores": 4, "memory_gib": 16 },
+      "Standard_D8s_v3": { "hourly_usd": 0.384, "cpu_cores": 8, "memory_gib": 32 }
+    }
+  },
+  "hours_per_month": 730
+}

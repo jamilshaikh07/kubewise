@@ -1,0 +1,86 @@
+{{- if .Values.agent.enabled -}}
+{{- $ns := .Values.global.namespace -}}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kubewise-agent
+  namespace: {{ $ns }}
+  labels:
+    {{- include "kubewise.labels" . | nindent 4 }}
+    app.kubernetes.io/component: agent
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kubewise-agent
+  labels:
+    {{- include "kubewise.labels" . | nindent 4 }}
+    app.kubernetes.io/component: agent
+rules:
+  - apiGroups: [""]
+    resources: ["nodes", "namespaces", "pods", "services", "persistentvolumeclaims"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "statefulsets", "daemonsets", "replicasets"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["metrics.k8s.io"]
+    resources: ["nodes", "pods"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kubewise-agent
+  labels:
+    {{- include "kubewise.labels" . | nindent 4 }}
+    app.kubernetes.io/component: agent
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kubewise-agent
+subjects:
+  - kind: ServiceAccount
+    name: kubewise-agent
+    namespace: {{ $ns }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubewise-agent
+  namespace: {{ $ns }}
+  labels:
+    {{- include "kubewise.labels" . | nindent 4 }}
+    app.kubernetes.io/component: agent
+    app: kubewise-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kubewise-agent
+  template:
+    metadata:
+      labels:
+        app: kubewise-agent
+        app.kubernetes.io/component: agent
+    spec:
+      serviceAccountName: kubewise-agent
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+      containers:
+        - name: agent
+          image: {{ .Values.agent.image.repository }}:{{ .Values.agent.image.tag }}
+          imagePullPolicy: {{ .Values.agent.image.pullPolicy }}
+          env:
+            - name: BACKEND_URL
+              value: "http://kubewise-api.{{ $ns }}.svc.cluster.local:8000"
+            - name: CLUSTER_NAME
+              value: {{ .Values.agent.clusterName | quote }}
+            - name: POLL_INTERVAL_SECONDS
+              value: {{ .Values.agent.pollIntervalSeconds | quote }}
+            - name: IN_CLUSTER
+              value: "true"
+          resources:
+            {{- toYaml .Values.agent.resources | nindent 12 }}
+{{- end }}

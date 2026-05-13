@@ -1,0 +1,97 @@
+{{- $ns := .Values.global.namespace -}}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kubewise-data
+  namespace: {{ $ns }}
+  labels:
+    {{- include "kubewise.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.api.persistence.size }}
+  {{- if .Values.api.persistence.storageClass }}
+  storageClassName: {{ .Values.api.persistence.storageClass }}
+  {{- end }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubewise-api
+  namespace: {{ $ns }}
+  labels:
+    {{- include "kubewise.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+    app: kubewise-api
+spec:
+  replicas: {{ .Values.api.replicas }}
+  selector:
+    matchLabels:
+      app: kubewise-api
+  template:
+    metadata:
+      labels:
+        app: kubewise-api
+        app.kubernetes.io/component: api
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+      containers:
+        - name: api
+          image: {{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}
+          imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+          ports:
+            - containerPort: 8000
+              name: http
+          env:
+            - name: DATABASE_URL
+              value: "sqlite:////data/kubewise.db"
+            - name: SEED_DEMO_DATA
+              value: {{ .Values.api.env.SEED_DEMO_DATA | quote }}
+            - name: CORS_ORIGINS
+              value: {{ .Values.api.env.CORS_ORIGINS | quote }}
+            - name: DEFAULT_NODE_HOURLY_RATE
+              value: {{ .Values.api.env.DEFAULT_NODE_HOURLY_RATE | quote }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          resources:
+            {{- toYaml .Values.api.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.api.healthcheck.path }}
+              port: 8000
+            initialDelaySeconds: {{ .Values.api.healthcheck.initialDelaySeconds }}
+            periodSeconds: {{ .Values.api.healthcheck.periodSeconds }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.api.healthcheck.path }}
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: kubewise-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubewise-api
+  namespace: {{ $ns }}
+  labels:
+    {{- include "kubewise.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+spec:
+  selector:
+    app: kubewise-api
+  ports:
+    - name: http
+      port: {{ .Values.api.service.port }}
+      targetPort: 8000
+  type: {{ .Values.api.service.type }}
