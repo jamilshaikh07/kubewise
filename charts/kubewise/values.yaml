@@ -7,7 +7,7 @@ global:
 ## -- API (Backend) --
 api:
   image:
-    repository: kubewise/api
+    repository: ghcr.io/jamilshaikh07/kubewise-api
     tag: "0.1.0"
     pullPolicy: IfNotPresent
   replicas: 1
@@ -37,7 +37,7 @@ api:
 ## -- Dashboard (Frontend) --
 dashboard:
   image:
-    repository: kubewise/dashboard
+    repository: ghcr.io/jamilshaikh07/kubewise-dashboard
     tag: "0.1.0"
     pullPolicy: IfNotPresent
   replicas: 1
@@ -60,7 +60,7 @@ dashboard:
 agent:
   enabled: false
   image:
-    repository: kubewise/agent
+    repository: ghcr.io/jamilshaikh07/kubewise-agent
     tag: "0.1.0"
     pullPolicy: IfNotPresent
   clusterName: "my-cluster"

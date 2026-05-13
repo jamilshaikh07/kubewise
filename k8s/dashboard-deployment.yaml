@@ -20,7 +20,7 @@ spec:
         runAsUser: 65534
       containers:
         - name: dashboard
-          image: kubewise/dashboard:0.1.0
+          image: ghcr.io/jamilshaikh07/kubewise-dashboard:0.1.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
