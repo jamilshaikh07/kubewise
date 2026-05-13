@@ -3,6 +3,9 @@
 ## -- Global settings --
 global:
   namespace: kubewise
+  imagePullSecrets: []
+  # imagePullSecrets:
+  #   - name: ghcr-pull-secret
 
 ## -- API (Backend) --
 api:
