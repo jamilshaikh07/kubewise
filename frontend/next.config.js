@@ -5,10 +5,7 @@ const nextConfig = {
     NEXT_PUBLIC_API_URL: "",
   },
   async rewrites() {
-    const apiUrl =
-      process.env.API_URL ||
-      process.env.NEXT_PUBLIC_API_URL ||
-      "http://kubewise-api:8000";
+    const apiUrl = process.env.API_URL || "http://kubewise-api:8000";
     return [
       {
         source: "/api/:path*",
