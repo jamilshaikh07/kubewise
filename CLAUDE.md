@@ -11,7 +11,7 @@ KubeWise is an **advisory-only** Kubernetes cost and performance optimization pl
 - Backend API: `http://localhost:8001` (Docker)
 - Frontend Dashboard: `http://localhost:3002` (Docker)
 - Agent: running in Docker, collecting from `talos-homelab` every 60s
-- Kubeconfig: `~/.kube/config-homelab` (Talos k8s, nodes at 192.168.60.40/41)
+- Kubeconfig: `~/.kube/config-homelab` (Talos k8s, bare-metal homelab nodes)
 
 ## Repository Layout
 
