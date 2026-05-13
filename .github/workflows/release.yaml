@@ -110,14 +110,14 @@ jobs:
         run: |
           CHART_VERSION=${{ steps.meta.outputs.chart_version }}
           yq e '.spec.chart.spec.version = "'${CHART_VERSION}'"' \
-            -i gitops-repo/gitops/flux/apps/kubewise.yaml
+            -i gitops-repo/k8s/flux/sites/pnl/helmreleases/kubewise.yaml
 
       - name: Commit and push gitops update
         run: |
           cd gitops-repo
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add gitops/flux/apps/kubewise.yaml
+          git add k8s/flux/sites/pnl/helmreleases/kubewise.yaml
           git diff --staged --quiet \
             && echo "No changes to commit" \
             || git commit -m "chore: bump kubewise to ${{ steps.meta.outputs.chart_version }} (${{ steps.meta.outputs.tag }})" \
