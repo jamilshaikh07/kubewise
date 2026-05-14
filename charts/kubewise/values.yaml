@@ -68,6 +68,8 @@ agent:
     pullPolicy: IfNotPresent
   clusterName: "my-cluster"
   pollIntervalSeconds: 300
+  env:
+    EXCLUDED_NAMESPACES: "kube-system,kube-public,kube-node-lease"
   resources:
     requests:
       cpu: 50m

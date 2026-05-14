@@ -195,6 +195,8 @@ def _kubectl_cmd(
 
 
 def analyze_workload(ctx: WorkloadContext) -> list[RecommendationResult]:
+    if ctx.is_system_namespace or ctx.namespace in SYSTEM_NAMESPACES:
+        return []
     results: list[RecommendationResult] = []
     risk = _risk(ctx)
 

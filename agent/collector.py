@@ -33,6 +33,13 @@ IN_CLUSTER = os.getenv("IN_CLUSTER", "true").lower() == "true"
 
 SYSTEM_NAMESPACES = {"kube-system", "kube-public", "kube-node-lease"}
 
+_excluded_env = os.getenv("EXCLUDED_NAMESPACES", "")
+EXCLUDED_NAMESPACES: set[str] = (
+    SYSTEM_NAMESPACES | {ns.strip() for ns in _excluded_env.split(",") if ns.strip()}
+    if _excluded_env
+    else SYSTEM_NAMESPACES
+)
+
 
 def load_kube_config() -> None:
     if IN_CLUSTER:
@@ -223,6 +230,9 @@ def collect() -> dict:
     ns_list = [ns.metadata.name for ns in core_v1.list_namespace().items]
     namespaces = []
     for ns_name in ns_list:
+        if ns_name in EXCLUDED_NAMESPACES:
+            log.debug("Skipping excluded namespace %s", ns_name)
+            continue
         try:
             ns_data = collect_namespace(ns_name, apps_v1, core_v1, live_metrics)
             namespaces.append(ns_data)

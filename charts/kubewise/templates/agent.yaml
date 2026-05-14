@@ -85,6 +85,10 @@ spec:
               value: {{ .Values.agent.pollIntervalSeconds | quote }}
             - name: IN_CLUSTER
               value: "true"
+            {{- range $key, $val := .Values.agent.env }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+            {{- end }}
           resources:
             {{- toYaml .Values.agent.resources | nindent 12 }}
 {{- end }}
