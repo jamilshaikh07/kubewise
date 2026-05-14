@@ -28,11 +28,13 @@ export function fmtMem(mib: number | null | undefined): string {
 
 export function fmtDate(iso: string | null): string {
   if (!iso) return "Never";
-  return new Date(iso).toLocaleString("en-US", {
+  const utc = iso.endsWith("Z") || iso.includes("+") ? iso : iso + "Z";
+  return new Date(utc).toLocaleString(undefined, {
     month: "short",
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    timeZoneName: "short",
   });
 }
 
