@@ -93,6 +93,10 @@ export interface Recommendation {
   current_cpu_limit_m: number | null;
   current_memory_request_mib: number | null;
   current_memory_limit_mib: number | null;
+  cpu_usage_p95_m: number | null;
+  memory_usage_p95_mib: number | null;
+  cpu_usage_current_m: number | null;
+  memory_usage_current_mib: number | null;
   recommended_cpu_request_m: number | null;
   recommended_cpu_limit_m: number | null;
   recommended_memory_request_mib: number | null;

@@ -302,3 +302,62 @@ def test_is_estimated_always_true():
     recs = analyze_workload(ctx)
     for r in recs:
         assert r.is_estimated is True
+
+
+# ── Fix regression: missing_limits savings must be $0 ─────────────────────────
+
+def test_missing_limits_savings_is_zero():
+    c = make_container(cpu_lim=None, mem_lim=None)
+    ctx = make_ctx(containers=[c])
+    recs = [r for r in analyze_workload(ctx) if r.flag_type == FLAG_MISSING_LIMITS]
+    assert recs, "Expected missing_limits flag"
+    assert all(r.estimated_monthly_savings_usd == 0.0 for r in recs), (
+        "missing_limits must never show savings — limits are a reliability fix, not a cost reduction"
+    )
+
+
+# ── Fix regression: kubectl command must include --limits for limits-only recs ─
+
+def test_missing_limits_kubectl_has_limits_flag():
+    c = make_container(cpu_lim=None, mem_lim=None)
+    ctx = make_ctx(containers=[c])
+    recs = [r for r in analyze_workload(ctx) if r.flag_type == FLAG_MISSING_LIMITS]
+    assert recs, "Expected missing_limits flag"
+    assert recs[0].kubectl_command is not None
+    assert "--limits=" in recs[0].kubectl_command, (
+        "kubectl command for missing_limits must include --limits= flag"
+    )
+
+
+# ── Fix regression: YAML patches must never contain ~ placeholders ────────────
+
+def test_yaml_patch_never_contains_tilde():
+    for make_c, label in [
+        (lambda: make_container(cpu_req=1000, cpu_p95=50), "over_provisioned_cpu"),
+        (lambda: make_container(cpu_lim=None, mem_lim=None), "missing_limits"),
+        (lambda: make_container(cpu_req=None, mem_req=None), "missing_requests"),
+    ]:
+        ctx = make_ctx(containers=[make_c()])
+        for r in analyze_workload(ctx):
+            if r.yaml_patch is not None:
+                assert "~" not in r.yaml_patch, (
+                    f"YAML patch for {r.flag_type} must not contain '~' placeholder"
+                )
+
+
+def test_missing_limits_yaml_has_limits_block_no_tilde():
+    c = make_container(cpu_lim=None, mem_lim=None)
+    ctx = make_ctx(containers=[c])
+    recs = [r for r in analyze_workload(ctx) if r.flag_type == FLAG_MISSING_LIMITS]
+    assert recs, "Expected missing_limits flag"
+    patch = recs[0].yaml_patch
+    assert patch is not None
+    assert "limits:" in patch
+    assert "~" not in patch
+
+
+# ── Fix regression: confidence high on memory-only P95 ───────────────────────
+
+def test_confidence_high_with_memory_p95_only():
+    c = make_container(has_historical=True, cpu_p95=None, mem_p95=200)
+    assert _confidence(c) == "high"

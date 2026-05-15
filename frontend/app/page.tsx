@@ -107,9 +107,7 @@ export default function Dashboard() {
       return {
         name: w.name.length > 14 ? w.name.slice(0, 13) + "…" : w.name,
         request: wr?.current_cpu_request_m ?? 0,
-        usage: wr?.current_memory_request_mib
-          ? Math.round((wr.current_cpu_request_m ?? 0) * 0.4)
-          : 0,
+        usage: wr?.cpu_usage_p95_m ?? wr?.cpu_usage_current_m ?? 0,
       };
     });
 
@@ -121,7 +119,7 @@ export default function Dashboard() {
       return {
         name: w.name.length > 14 ? w.name.slice(0, 13) + "…" : w.name,
         request: wr?.current_memory_request_mib ?? 0,
-        usage: wr?.recommended_memory_request_mib ?? 0,
+        usage: wr?.memory_usage_p95_mib ?? wr?.memory_usage_current_mib ?? 0,
       };
     });
 

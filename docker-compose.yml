@@ -63,6 +63,10 @@ services:
       POLL_INTERVAL_SECONDS: "60"
       IN_CLUSTER: "false"
       KUBECONFIG: "/home/kubewise/.kube/config"
+      # Set to your Prometheus/VictoriaMetrics base URL to enable P95 historical metrics.
+      # Example: http://vmsingle-victoria-metrics:8428
+      # Leave empty to fall back to metrics-server (current values only, medium confidence).
+      METRICS_URL: ""
     volumes:
       - "./agent-kubeconfig.yaml:/home/kubewise/.kube/config:ro"
     depends_on:

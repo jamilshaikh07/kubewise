@@ -3,7 +3,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session, joinedload
 
-from models.db import Cluster, Namespace, Recommendation, Workload
+from models.db import Cluster, Container, Namespace, Recommendation, Workload
 from models.schemas import RecommendationOut, SavingsEstimate
 from storage.database import get_db
 
@@ -11,6 +11,7 @@ router = APIRouter(prefix="/api/v1/recommendations", tags=["recommendations"])
 
 
 def _rec_out(r: Recommendation, wl: Workload, ns_name: str) -> RecommendationOut:
+    ctr = next((c for c in wl.containers if c.name == r.container_name), None)
     return RecommendationOut(
         id=r.id,
         workload_id=wl.id,
@@ -26,6 +27,10 @@ def _rec_out(r: Recommendation, wl: Workload, ns_name: str) -> RecommendationOut
         current_cpu_limit_m=r.current_cpu_limit_m,
         current_memory_request_mib=r.current_memory_request_mib,
         current_memory_limit_mib=r.current_memory_limit_mib,
+        cpu_usage_p95_m=ctr.cpu_usage_p95_m if ctr else None,
+        memory_usage_p95_mib=ctr.memory_usage_p95_mib if ctr else None,
+        cpu_usage_current_m=ctr.cpu_usage_current_m if ctr else None,
+        memory_usage_current_mib=ctr.memory_usage_current_mib if ctr else None,
         recommended_cpu_request_m=r.recommended_cpu_request_m,
         recommended_cpu_limit_m=r.recommended_cpu_limit_m,
         recommended_memory_request_mib=r.recommended_memory_request_mib,
@@ -53,7 +58,10 @@ def list_recommendations(
         db.query(Recommendation)
         .join(Workload)
         .join(Namespace)
-        .options(joinedload(Recommendation.workload).joinedload(Workload.namespace))
+        .options(
+            joinedload(Recommendation.workload).joinedload(Workload.namespace),
+            joinedload(Recommendation.workload).joinedload(Workload.containers),
+        )
     )
     if cluster_id:
         q = q.filter(Namespace.cluster_id == cluster_id)

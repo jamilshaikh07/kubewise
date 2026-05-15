@@ -129,6 +129,11 @@ class RecommendationOut(BaseModel):
     current_memory_request_mib: Optional[int]
     current_memory_limit_mib: Optional[int]
 
+    cpu_usage_p95_m: Optional[int] = None
+    memory_usage_p95_mib: Optional[int] = None
+    cpu_usage_current_m: Optional[int] = None
+    memory_usage_current_mib: Optional[int] = None
+
     recommended_cpu_request_m: Optional[int]
     recommended_cpu_limit_m: Optional[int]
     recommended_memory_request_mib: Optional[int]

@@ -96,9 +96,9 @@ class RecommendationResult:
 
 
 def _confidence(c: ContainerMetrics) -> str:
-    if c.has_historical_metrics and c.cpu_usage_p95_m is not None:
+    if c.has_historical_metrics and (c.cpu_usage_p95_m is not None or c.memory_usage_p95_mib is not None):
         return "high"
-    if c.has_metrics and c.cpu_usage_current_m is not None:
+    if c.has_metrics and (c.cpu_usage_current_m is not None or c.memory_usage_current_mib is not None):
         return "medium"
     return "low"
 
