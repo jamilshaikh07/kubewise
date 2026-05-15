@@ -144,6 +144,9 @@ export default function Dashboard() {
           <div className="flex items-center gap-1.5">
             <Zap className="h-5 w-5 text-indigo-600" />
             <span className="font-bold text-slate-800 dark:text-slate-100 text-base tracking-tight">KubeWise</span>
+            <span className="rounded bg-indigo-50 dark:bg-indigo-900/30 px-1.5 py-0.5 text-[10px] font-mono font-medium text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800">
+              {process.env.NEXT_PUBLIC_APP_VERSION ?? "dev"}
+            </span>
           </div>
           {cluster && (
             <span className="rounded bg-slate-100 dark:bg-slate-700 px-2 py-0.5 text-xs font-mono text-slate-600 dark:text-slate-300">

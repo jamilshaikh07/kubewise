@@ -1,0 +1,106 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/kubewise
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # ── Backend API ──────────────────────────────────────────────────────────
+      - name: Build and push API image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ${{ env.IMAGE_PREFIX }}-api:${{ github.ref_name }}
+            ${{ env.IMAGE_PREFIX }}-api:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # ── Frontend Dashboard ───────────────────────────────────────────────────
+      - name: Build and push Dashboard image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          build-args: |
+            NEXT_PUBLIC_APP_VERSION=${{ github.ref_name }}
+          tags: |
+            ${{ env.IMAGE_PREFIX }}-dashboard:${{ github.ref_name }}
+            ${{ env.IMAGE_PREFIX }}-dashboard:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # ── Agent ────────────────────────────────────────────────────────────────
+      - name: Build and push Agent image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./agent
+          push: true
+          tags: |
+            ${{ env.IMAGE_PREFIX }}-agent:${{ github.ref_name }}
+            ${{ env.IMAGE_PREFIX }}-agent:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # ── Helm Chart version bump ──────────────────────────────────────────────
+      - name: Bump Chart.yaml version
+        run: |
+          VERSION=${{ steps.version.outputs.VERSION }}
+          sed -i "s/^version:.*/version: ${VERSION}/" charts/kubewise/Chart.yaml
+          sed -i "s/^appVersion:.*/appVersion: \"${VERSION}\"/" charts/kubewise/Chart.yaml
+
+      - name: Commit Chart version bump
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(release): bump chart to ${{ github.ref_name }}"
+          file_pattern: charts/kubewise/Chart.yaml
+          commit_options: "--no-verify"
+
+      # ── GitHub Release ───────────────────────────────────────────────────────
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          name: "KubeWise ${{ github.ref_name }}"
+          body: |
+            ## Images
+
+            ```
+            ${{ env.IMAGE_PREFIX }}-api:${{ github.ref_name }}
+            ${{ env.IMAGE_PREFIX }}-dashboard:${{ github.ref_name }}
+            ${{ env.IMAGE_PREFIX }}-agent:${{ github.ref_name }}
+            ```
+
+            ## Deploy
+
+            Update the image tags in your ArgoCD app values to `${{ github.ref_name }}` and sync.

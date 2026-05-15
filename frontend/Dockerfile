@@ -9,12 +9,16 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ARG NEXT_PUBLIC_API_URL=
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_APP_VERSION=dev
+ENV NEXT_PUBLIC_APP_VERSION=$NEXT_PUBLIC_APP_VERSION
 RUN npm run build
 
 FROM node:20-alpine AS runner
 WORKDIR /app
 LABEL org.opencontainers.image.title="KubeWise Dashboard"
 LABEL org.opencontainers.image.description="KubeWise frontend — Kubernetes cost optimization dashboard"
+ARG NEXT_PUBLIC_APP_VERSION=dev
+LABEL org.opencontainers.image.version=$NEXT_PUBLIC_APP_VERSION
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
