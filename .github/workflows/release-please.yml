@@ -16,8 +16,6 @@ jobs:
       - uses: googleapis/release-please-action@v4
         id: release
         with:
-          release-type: simple
-          package-name: kubewise
-          version-file: version.txt
-          extra-files: |
-            charts/kubewise/Chart.yaml
+          token: ${{ secrets.GH_PAT }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
