@@ -72,19 +72,25 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # ── Helm Chart version bump ──────────────────────────────────────────────
-      - name: Bump Chart.yaml version
+      # ── Update GitOps repo image tags ───────────────────────────────────────
+      # Requires a repo secret GITOPS_TOKEN with write access to the gitops repo.
+      - name: Update ArgoCD image tags in gitops repo
+        env:
+          GITOPS_TOKEN: ${{ secrets.GITOPS_TOKEN }}
+          TAG: ${{ github.ref_name }}
         run: |
-          VERSION=${{ steps.version.outputs.VERSION }}
-          sed -i "s/^version:.*/version: ${VERSION}/" charts/kubewise/Chart.yaml
-          sed -i "s/^appVersion:.*/appVersion: \"${VERSION}\"/" charts/kubewise/Chart.yaml
-
-      - name: Commit Chart version bump
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "chore(release): bump chart to ${{ github.ref_name }}"
-          file_pattern: charts/kubewise/Chart.yaml
-          commit_options: "--no-verify"
+          git clone --depth 1 \
+            "https://x-access-token:${GITOPS_TOKEN}@github.com/jamilshaikh07/talos-proxmox-gitops.git" \
+            /tmp/gitops
+          sed -i \
+            "s/value: \"[^\"]*\" # bumped automatically by CI/value: \"${TAG}\" # bumped automatically by CI/g" \
+            /tmp/gitops/gitops/apps/kubewise.yaml
+          cd /tmp/gitops
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add gitops/apps/kubewise.yaml
+          git diff --cached --quiet || \
+            git commit -m "chore(kubewise): bump images to ${TAG}" && git push
 
       # ── GitHub Release ───────────────────────────────────────────────────────
       - name: Create GitHub Release
@@ -103,4 +109,5 @@ jobs:
 
             ## Deploy
 
-            Update the image tags in your ArgoCD app values to `${{ github.ref_name }}` and sync.
+            ArgoCD image tags in the gitops repo are updated automatically.
+            Sync the `kubewise` ArgoCD app to deploy.
