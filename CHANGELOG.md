@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/jamilshaikh07/kubewise/compare/v1.0.0...v1.0.1) (2026-07-23)
+
+
+### Bug Fixes
+
+* **api:** enable SQLite WAL mode to stop dashboard reads blocking on agent writes ([1b807a3](https://github.com/jamilshaikh07/kubewise/commit/1b807a3943f3a751acf96c295e22e62092ea73fe))
+
 ## 1.0.0 (2026-05-15)
 
 
