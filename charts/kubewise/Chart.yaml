@@ -1,9 +1,11 @@
 apiVersion: v2
 name: kubewise
-description: KubeWise — Kubernetes cost and performance optimization platform (advisory-only)
+description: >-
+  KubeWise — Kubernetes cost and performance optimization platform
+  (advisory-only)
 type: application
-version: 0.1.0
-appVersion: "0.1.0"
+version: 1.0.1
+appVersion: 0.1.0
 keywords:
   - kubernetes
   - finops
